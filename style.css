@@ -1,0 +1,209 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Arial Black', Arial, sans-serif;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+    color: #333;
+    overflow-x: hidden;
+}
+
+.container { max-width: 500px; margin: 0 auto; padding: 1rem; min-height: 100vh; }
+
+header {
+    text-align: center;
+    background: rgba(255,255,255,0.9);
+    padding: 1rem;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+    backdrop-filter: blur(10px);
+}
+
+header h1 {
+    font-size: 2.2rem;
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+}
+
+.session-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #666;
+}
+
+.booth {
+    background: white;
+    border-radius: 25px;
+    padding: 1.5rem;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+    margin-bottom: 1rem;
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    height: 450px;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    background: #000;
+}
+
+#video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#overlayCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.shot-preview {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.shot-thumb {
+    width: 100%;
+    height: 100px;
+    border-radius: 10px;
+    border: 3px solid #ddd;
+    background: #f0f0f0;
+}
+
+.controls {
+    text-align: center;
+}
+
+.start-btn, .capture-btn {
+    width: 250px;
+    height: 80px;
+    border: none;
+    border-radius: 40px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.start-btn {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    color: white;
+    box-shadow: 0 10px 30px rgba(76,175,80,0.4);
+}
+
+.capture-btn {
+    background: linear-gradient(45deg, #ff5722, #ff8a65);
+    color: white;
+    box-shadow: 0 15px 40px rgba(255,87,34,0.5);
+    font-size: 2rem !important;
+}
+
+.start-btn:hover, .capture-btn:hover { transform: scale(1.05); }
+
+.countdown {
+    font-size: 5rem;
+    font-weight: bold;
+    margin: 1rem 0;
+    color: #ff5722;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+}
+
+.props-panel, .filters {
+    background: rgba(255,255,255,0.95);
+    padding: 1rem;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+    backdrop-filter: blur(10px);
+}
+
+.props-panel h3, .filters h3 { 
+    margin-bottom: 1rem; 
+    text-align: center;
+    color: #333;
+}
+
+.props-grid, .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    justify-content: center;
+}
+
+.prop-btn, .filter-btn {
+    padding: 0.7rem 1.2rem;
+    border: 2px solid #ddd;
+    border-radius: 25px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    min-width: 70px;
+}
+
+.prop-btn.active, .filter-btn.active,
+.prop-btn:hover, .filter-btn:hover {
+    background: #ffd700;
+    border-color: #ffc107;
+    transform: scale(1.05);
+}
+
+.result {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 25px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+}
+
+.final-strip {
+    max-width: 100%;
+    max-height: 500px;
+    border-radius: 20px;
+    margin: 1.5rem 0;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.result-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.result-actions button {
+    padding: 1.2rem 2.5rem;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 140px;
+}
+
+#downloadBtn { background: linear-gradient(45deg, #4CAF50, #45a049); color: white; }
+#shareBtn { background: linear-gradient(45deg, #25D366, #128C7E); color: white; }
+#newSessionBtn { background: linear-gradient(45deg, #2196F3, #1976D2); color: white; }
+
+.result.hidden { display: none; }
+
+@media (max-width: 480px) {
+    .props-grid, .filters { gap: 0.5rem; }
+    .prop-btn, .filter-btn { padding: 0.6rem 1rem; font-size: 0.8rem; }
+    .shot-preview { grid-template-columns: 1fr; }
+}
