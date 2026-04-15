@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Digital Photobooth</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>📸 PRO PHOTOBOOTH</h1>
+            <div class="session-info">
+                <span id="shotCounter">1/4</span>
+                <span id="timer">00:00</span>
+            </div>
+        </header>
+
+        <!-- Booth Area -->
+        <main class="booth">
+            <!-- Video + Overlay Canvas -->
+            <div class="video-container">
+                <video id="video" autoplay muted playsinline></video>
+                <canvas id="overlayCanvas"></canvas>
+            </div>
+            
+            <!-- Capture Canvas (hidden) -->
+            <canvas id="captureCanvas" style="display:none;"></canvas>
+            
+            <!-- Multi-shot Preview -->
+            <div class="shot-preview">
+                <canvas id="shot1" class="shot-thumb"></canvas>
+                <canvas id="shot2" class="shot-thumb"></canvas>
+                <canvas id="shot3" class="shot-thumb"></canvas>
+                <canvas id="shot4" class="shot-thumb"></canvas>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <div class="countdown" id="countdown"></div>
+                <button id="startSession" class="start-btn">🚀 START SESSION</button>
+                <button id="captureBtn" class="capture-btn" style="display:none;">SNAP!</button>
+            </div>
+        </main>
+
+        <!-- Props Panel -->
+        <div class="props-panel">
+            <h3>🎭 Props</h3>
+            <div class="props-grid">
+                <button class="prop-btn" data-prop="none">❌ None</button>
+                <button class="prop-btn" data-prop="hat">🎩 Hat</button>
+                <button class="prop-btn" data-prop="sunglasses">🕶️ Sunglasses</button>
+                <button class="prop-btn active" data-prop="crown">👑 Crown</button>
+                <button class="prop-btn" data-prop="heart">💖 Love</button>
+                <button class="prop-btn" data-prop="party">🎉 Party</button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <button class="filter-btn active" data-filter="normal">🌈 Normal</button>
+            <button class="filter-btn" data-filter="vintage">📼 Vintage</button>
+            <button class="filter-btn" data-filter="party">🎊 Party</button>
+            <button class="filter-btn" data-filter="bww">🖤 B&W</button>
+        </div>
+
+        <!-- Result -->
+        <section id="resultSection" class="result hidden">
+            <h2>🎊 SESSION COMPLETE!</h2>
+            <canvas id="finalStrip" class="final-strip"></canvas>
+            <div class="result-actions">
+                <button id="downloadBtn">💾 Download Strip</button>
+                <button id="shareBtn">📱 Share</button>
+                <button id="newSessionBtn">🔄 New Session</button>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
