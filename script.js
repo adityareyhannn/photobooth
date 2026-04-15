@@ -1,208 +1,194 @@
-class ProPhotobooth {
+class PhotoboothPro {
     constructor() {
-        // Elements
         this.video = document.getElementById('video');
-        this.overlayCanvas = document.getElementById('overlayCanvas');
-        this.captureCanvas = document.getElementById('captureCanvas');
-        this.shotCanvases = [
-            document.getElementById('shot1'),
-            document.getElementById('shot2'),
-            document.getElementById('shot3'),
-            document.getElementById('shot4')
-        ];
-        this.finalStripCanvas = document.getElementById('finalStrip');
-        
-        this.startBtn = document.getElementById('startSession');
-        this.captureBtn = document.getElementById('captureBtn');
-        this.countdownEl = document.getElementById('countdown');
-        this.shotCounterEl = document.getElementById('shotCounter');
-        this.resultSection = document.getElementById('resultSection');
-        
-        // State
-        this.currentShot = 0;
+        this.overlay = document.getElementById('overlay');
         this.shots = [];
+        this.currentShot = 0;
         this.currentProp = 'crown';
-        this.currentFilter = 'normal';
-        this.sessionTimer = 0;
         this.stream = null;
-        this.sessionActive = false;
         this.timerInterval = null;
-        
         this.init();
     }
-    
+
     async init() {
         try {
             this.stream = await navigator.mediaDevices.getUserMedia({
-                video: { width: 1280, height: 720, facingMode: 'user' }
+                video: { 
+                    facingMode: 'user', 
+                    width: { ideal: 1280 }, 
+                    height: { ideal: 720 } 
+                }
             });
             this.video.srcObject = this.stream;
             
-            // Event Listeners
-            this.startBtn.addEventListener('click', () => this.startSession());
-            this.captureBtn.addEventListener('click', () => this.captureShot());
-            
-            // Props & Filters
-            document.querySelectorAll('.prop-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => this.setProp(e.target.dataset.prop));
-            });
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => this.setFilter(e.target.dataset.filter));
-            });
-            
-            // Result actions
-            document.getElementById('downloadBtn').addEventListener('click', () => this.downloadStrip());
-            document.getElementById('shareBtn').addEventListener('click', () => this.shareStrip());
-            document.getElementById('newSessionBtn').addEventListener('click', () => this.newSession());
-            
-        } catch(err) {
-            alert('Izinkan akses kamera dulu ya! 📱');
-        }
-    }
-    
-    startSession() {
-        this.currentShot = 0;
-        this.shots = [];
-        this.sessionActive = true;
-        this.sessionTimer = 0;
-        
-        // UI Update
-        this.startBtn.style.display = 'none';
-        this.captureBtn.style.display = 'block';
-        this.shotCounterEl.textContent = 'GET READY!';
-        
-        // Start timer
-        this.timerInterval = setInterval(() => {
-            this.sessionTimer++;
-            const minutes = Math.floor(this.sessionTimer / 60).toString().padStart(2, '0');
-            const seconds = (this.sessionTimer % 60).toString().padStart(2, '0');
-            document.getElementById('timer').textContent = `${minutes}:${seconds}`;
-        }, 1000);
-        
-        // Auto countdown to first shot
-        setTimeout(() => this.startCountdown(), 2000);
-    }
-    
-    async startCountdown() {
-        for (let i = 4; i > 0; i--) {
-            this.countdownEl.textContent = i;
-            this.countdownEl.style.opacity = '1';
-            await new Promise(resolve => setTimeout(resolve, 800));
-        }
-        this.countdownEl.style.opacity = '0';
-        this.captureShot();
-    }
-    
-    async captureShot() {
-        if (this.currentShot >= 4) return;
-        
-        // Capture with overlay
-        const ctx = this.captureCanvas.getContext('2d');
-        this.captureCanvas.width = 640;
-        this.captureCanvas.height = 480;
-        
-        ctx.drawImage(this.video, 0, 0, 640, 480);
-        ctx.drawImage(this.overlayCanvas, 0, 0, 640, 480);
-        
-        // Apply filter
-        this.applyFilter();
-        
-        // Save shot
-        this.shots[this.currentShot] = this.captureCanvas.toDataURL();
-        this.shotCanvases[this.currentShot].width = 120;
-        this.shotCanvases[this.currentShot].height = 90;
-        const thumbCtx = this.shotCanvases[this.currentShot].getContext('2d');
-        thumbCtx.drawImage(this.captureCanvas, 0, 0, 120, 90);
-        
-        this.currentShot++;
-        this.shotCounterEl.textContent = `${this.currentShot}/4`;
-        
-        // Next shot or finish
-        if (this.currentShot < 4) {
-            setTimeout(() => this.startCountdown(), 1000);
-        } else {
-            setTimeout(() => this.finishSession(), 2000);
-        }
-    }
-    
-    finishSession() {
-        this.sessionActive = false;
-        clearInterval(this.timerInterval);
-        this.createFinalStrip();
-        this.resultSection.classList.remove('hidden');
-        document.querySelector('.booth').style.display = 'none';
-        document.querySelector('.props-panel').style.display = 'none';
-        document.querySelector('.filters').style.display = 'none';
-    }
-    
-    createFinalStrip() {
-        const ctx = this.finalStripCanvas.getContext('2d');
-        this.finalStripCanvas.width = 800;
-        this.finalStripCanvas.height = 1200;
-        
-        // Background strip
-        const gradient = ctx.createLinearGradient(0, 0, 0, 1200);
-        gradient.addColorStop(0, '#fff');
-        gradient.addColorStop(1, '#f8f9fa');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 800, 1200);
-        
-        // Border
-        ctx.strokeStyle = '#ddd';
-        ctx.lineWidth = 20;
-        ctx.strokeRect(40, 40, 720, 1120);
-        
-        // 4 Shots (2x2 grid)
-        const shotSize = 320;
-        const offsetX = [80, 440];
-        const offsetY = [80, 500];
-        
-        this.shots.forEach((shot, index) => {
-            const img = new Image();
-            img.src = shot;
-            img.onload = () => {
-                ctx.drawImage(img, offsetX[index % 2], offsetY[Math.floor(index / 2)], shotSize, shotSize * 0.75);
+            this.video.onloadedmetadata = () => {
+                this.updateStatus('✅ Kamera siap! Pilih props → START SESSION', 'status-ok');
+                this.drawOverlay();
             };
+        } catch (err) {
+            this.updateStatus('❌ Izinkan akses kamera di browser!', 'status-error');
+            console.error('Camera Error:', err);
+        }
+
+        // Event Listeners
+        document.getElementById('startBtn').onclick = () => this.startSession();
+        document.getElementById('captureBtn').onclick = () => this.captureShot();
+        
+        document.querySelectorAll('.prop-btn').forEach(btn => {
+            btn.onclick = (e) => this.setProp(e.target.dataset.prop);
         });
         
-        // Photobooth branding
-        ctx.fillStyle = '#ff6b6b';
-        ctx.font = 'bold 50px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('DIGITAL PHOTOBOOTH', 400, 1150);
-        
-        ctx.font = '30px Arial';
-        ctx.fillStyle = '#666';
-        ctx.fillText(`Session: ${new Date().toLocaleString('id-ID')}`, 400, 1185);
+        document.getElementById('downloadBtn').onclick = () => this.download();
+        document.getElementById('shareBtn').onclick = () => this.share();
+        document.getElementById('newSessionBtn').onclick = () => this.newSession();
     }
-    
+
+    updateStatus(message, className) {
+        const statusEl = document.getElementById('status');
+        statusEl.textContent = message;
+        statusEl.className = `status ${className}`;
+    }
+
     setProp(prop) {
         this.currentProp = prop;
         document.querySelectorAll('.prop-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector(`[data-prop="${prop}"]`).classList.add('active');
+        event.target.classList.add('active');
         this.drawOverlay();
     }
-    
-    setFilter(filter) {
-        this.currentFilter = filter;
-        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
-    }
-    
+
     drawOverlay() {
-        const ctx = this.overlayCanvas.getContext('2d');
+        const ctx = this.overlay.getContext('2d');
         const rect = this.video.getBoundingClientRect();
-        this.overlayCanvas.width = rect.width;
-        this.overlayCanvas.height = rect.height;
-        
-        ctx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);
+        this.overlay.width = rect.width;
+        this.overlay.height = rect.height;
+
+        ctx.clearRect(0, 0, this.overlay.width, this.overlay.height);
         ctx.save();
-        ctx.scale(this.overlayCanvas.width/640, this.overlayCanvas.height/480);
+        ctx.scale(this.overlay.width / 640, this.overlay.height / 480);
+
+        const props = {
+            crown: function() {
+                ctx.fillStyle = '#ffd700';
+                ctx.shadowColor = 'rgba(255,215,0,0.7)';
+                ctx.shadowBlur = 25;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 5;
+                ctx.beginPath();
+                ctx.moveTo(320, 70);
+                ctx.quadraticCurveTo(280, 90, 260, 120);
+                ctx.quadraticCurveTo(240, 160, 270, 140);
+                ctx.quadraticCurveTo(300, 130, 320, 120);
+                ctx.quadraticCurveTo(340, 130, 370, 140);
+                ctx.quadraticCurveTo(400, 160, 380, 120);
+                ctx.quadraticCurveTo(360, 90, 320, 70);
+                ctx.fill();
+            },
+            hat: function() {
+                ctx.fillStyle = '#8B4513';
+                ctx.shadowColor = 'rgba(139,69,19,0.5)';
+                ctx.shadowBlur = 15;
+                ctx.fillRect(270, 120, 100, 45);
+                ctx.beginPath();
+                ctx.moveTo(250, 120);
+                ctx.lineTo(410, 120);
+                ctx.lineTo(340, 60);
+                ctx.closePath();
+                ctx.fill();
+            },
+            glasses: function() {
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 14;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.arc(280, 240, 40, 0, Math.PI * 2);
+                ctx.arc(360, 240, 40, 0, Math.PI * 2);
+                ctx.moveTo(320, 240);
+                ctx.lineTo(320, 240);
+                ctx.stroke();
+            },
+            heart: function() {
+                ctx.fillStyle = '#ff1493';
+                ctx.shadowColor = 'rgba(255,20,147,0.8)';
+                ctx.shadowBlur = 30;
+                ctx.beginPath();
+                ctx.moveTo(320, 210);
+                ctx.bezierCurveTo(320, 170, 280, 150, 280, 200);
+                ctx.bezierCurveTo(280, 250, 320, 290, 320, 250);
+                ctx.bezierCurveTo(360, 290, 400, 250, 400, 200);
+                ctx.bezierCurveTo(400, 150, 360, 170, 320, 210);
+                ctx.fill();
+            },
+            party: function() {
+                ctx.fillStyle = 'rgba(255,215,0,0.9)';
+                for (let i = 0; i < 40; i++) {
+                    const x = Math.random() * 640;
+                    const y = Math.random() * 480;
+                    const size = Math.random() * 10 + 5;
+                    ctx.beginPath();
+                    ctx.arc(x, y, size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            },
+            none: function() {}
+        };
+
+        if (props[this.currentProp]) {
+            props[this.currentProp]();
+        }
+
+        ctx.restore();
+        requestAnimationFrame(() => this.drawOverlay());
+    }
+
+    async startSession() {
+        this.shots = new Array(4).fill(null);
+        this.currentShot = 0;
         
-        // Draw props based on currentProp
-        switch(this.currentProp) {
-            case 'hat':
-                this.drawHat(ctx);
-                break;
-            case 'sunglasses':
-                this
+        document.getElementById('startBtn').style.display = 'none';
+        document.getElementById('captureBtn').style.display = 'block';
+        document.getElementById('shotCounter').textContent = 'GET READY!';
+        
+        // Timer
+        this.timerInterval = setInterval(() => {
+            this.timer++;
+            const mins = Math.floor(this.timer / 60).toString().padStart(2, '0');
+            const secs = (this.timer % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `${mins}:${secs}`;
+        }, 1000);
+
+        await this.countdown(4);
+        this.captureShot();
+    }
+
+    async countdown(seconds) {
+        const countdownEl = document.getElementById('countdown');
+        for (let i = seconds; i > 0; i--) {
+            countdownEl.textContent = i;
+            countdownEl.style.opacity = '1';
+            await new Promise(resolve => setTimeout(resolve, 950));
+        }
+        countdownEl.style.opacity = '0';
+    }
+
+    async captureShot() {
+        if (this.currentShot >= 4) {
+            this.finishSession();
+            return;
+        }
+
+        // Flash effect
+        document.body.style.transition = 'background 0.1s';
+        document.body.style.background = '#ffffff';
+        setTimeout(() => {
+            document.body.style.background = '';
+            document.body.style.transition = '';
+        }, 150);
+
+        // Capture to canvas
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = 640;
+        tempCanvas.height = 480;
+        const tempCtx = tempCanvas
