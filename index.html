@@ -3,61 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎉 PRO PHOTOBOOTH</title>
+    <title>📸 PHOTOBOOTH</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="status" class="status">Memuat kamera...</div>
+
     <div class="container">
-        <div id="status" class="status">Loading kamera...</div>
-        
+
         <header>
-            <h1>📸 PHOTOBOOTH PRO</h1>
+            <h1>PHOTO<span class="accent">BOOTH</span></h1>
             <div class="session-info">
                 <span id="shotCounter">0/4</span>
                 <span id="timer">00:00</span>
             </div>
         </header>
-        
+
         <div class="booth">
             <div class="video-container">
                 <video id="video" autoplay muted playsinline></video>
                 <canvas id="overlay"></canvas>
+                <div class="controls">
+                    <div id="countdown" class="countdown"></div>
+                    <button id="startBtn" class="btn-big btn-start">▶ START SESSION</button>
+                    <button id="captureBtn" class="btn-big btn-capture" style="display:none;">● SNAP!</button>
+                </div>
             </div>
-            
+
             <div class="shot-preview">
                 <canvas id="shot1" class="shot-thumb"></canvas>
                 <canvas id="shot2" class="shot-thumb"></canvas>
                 <canvas id="shot3" class="shot-thumb"></canvas>
                 <canvas id="shot4" class="shot-thumb"></canvas>
             </div>
-            
-            <div class="controls">
-                <div id="countdown" class="countdown"></div>
-                <button id="startBtn" class="btn-big btn-start">🚀 START SESSION</button>
-                <button id="captureBtn" class="btn-big btn-capture" style="display:none;">SNAP!</button>
-            </div>
         </div>
-        
+
         <div class="props">
-            <h3>🎭 Pilih Props</h3>
+            <h3>🎭 Props</h3>
             <div class="props-grid">
                 <button class="prop-btn active" data-prop="crown">👑 Crown</button>
                 <button class="prop-btn" data-prop="hat">🎩 Hat</button>
                 <button class="prop-btn" data-prop="glasses">🕶️ Glasses</button>
                 <button class="prop-btn" data-prop="heart">💖 Heart</button>
                 <button class="prop-btn" data-prop="party">🎉 Party</button>
-                <button class="prop-btn" data-prop="none">➖ None</button>
+                <button class="prop-btn" data-prop="none">— None</button>
             </div>
         </div>
-        
-        <div id="resultSection" class="result hidden">
-            <h2>🎊 SESSION SUKSES!</h2>
-            <canvas id="finalStrip"></canvas>
-            <div class="result-actions">
-                <button id="downloadBtn" class="btn-big">💾 Download Strip</button>
-                <button id="shareBtn" class="btn-big">📱 Share WA</button>
-                <button id="newSessionBtn" class="btn-big">🔄 Session Baru</button>
-            </div>
+
+    </div>
+
+    <div id="resultSection" class="result hidden">
+        <h2>🎊 SESSION SUKSES!</h2>
+        <canvas id="finalStrip"></canvas>
+        <div class="result-actions">
+            <button id="downloadBtn" class="btn-big">💾 Download Strip</button>
+            <button id="shareBtn" class="btn-big">📱 Share WhatsApp</button>
+            <button id="newSessionBtn" class="btn-big">↺ Session Baru</button>
         </div>
     </div>
 
