@@ -19,14 +19,13 @@ class PhotoboothPro {
             this.video.srcObject = this.stream;
             
             this.video.onloadedmetadata = () => {
-                this.updateStatus('✅ FULLY READY! Pilih props → START SESSION', 'status-ok');
+                this.updateStatus('✅ READY! Pilih props → START SESSION', 'status-ok');
                 this.drawOverlay();
             };
         } catch (err) {
             this.updateStatus('❌ Error: ' + err.name, 'status-error');
         }
 
-        // FULL EVENT LISTENERS
         document.getElementById('startBtn').onclick = () => this.startSession();
         document.getElementById('captureBtn').onclick = () => this.captureShot();
         
@@ -134,12 +133,10 @@ class PhotoboothPro {
         this.currentShot = 0;
         this.timer = 0;
         
-        // UI
         document.getElementById('startBtn').style.display = 'none';
-        document.getElementById('captureBtn').style.display = 'block';
-        document.getElementById('shotCounter').textContent = 'GET READY!';
+        document.getElementById('captureBtn').style.display = 'inline-flex';
+        document.getElementById('shotCounter').textContent = 'SIAP!';
         
-        // Timer
         this.timerInterval = setInterval(() => {
             this.timer++;
             const mins = Math.floor(this.timer/60).toString().padStart(2,'0');
@@ -167,14 +164,9 @@ class PhotoboothPro {
             return;
         }
 
-        // FLASH EFFECT
         document.body.style.background = '#fff';
-        document.body.style.transition = 'background 0.2s';
-        setTimeout(() => {
-            document.body.style.background = '';
-        }, 200);
+        setTimeout(() => { document.body.style.background = ''; }, 200);
 
-        // CAPTURE
         const canvas = document.createElement('canvas');
         canvas.width = 640;
         canvas.height = 480;
@@ -182,18 +174,15 @@ class PhotoboothPro {
         
         ctx.drawImage(this.video, 0, 0, 640, 480);
         
-        // Overlay layer
         const overlayData = this.overlay.getContext('2d').getImageData(0, 0, 640, 480);
         ctx.putImageData(overlayData, 0, 0);
 
-        // SAVE SHOT
         this.shots[this.currentShot] = canvas.toDataURL('image/png');
         
-        // THUMBNAIL
         const thumb = document.getElementById(`shot${this.currentShot+1}`);
         thumb.width = 120;
-        thumb.height = 90;
-        thumb.getContext('2d').drawImage(canvas, 0, 0, 120, 90);
+        thumb.height = 52;
+        thumb.getContext('2d').drawImage(canvas, 0, 0, 120, 52);
 
         document.getElementById('shotCounter').textContent = `${this.currentShot+1}/4`;
         this.currentShot++;
@@ -218,44 +207,44 @@ class PhotoboothPro {
     createStrip() {
         const canvas = document.getElementById('finalStrip');
         const ctx = canvas.getContext('2d');
-        canvas.width = 900;
-        canvas.height = 1300;
+        canvas.width = 600;
+        canvas.height = 1400;
 
-        // BACKGROUND
-        const gradient = ctx.createLinearGradient(0, 0, 0, 1300);
-        gradient.addColorStop(0, '#ffffff');
-        gradient.addColorStop(0.7, '#f8f9fa');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 900, 1300);
+        ctx.fillStyle = '#0c0c0e';
+        ctx.fillRect(0, 0, 600, 1400);
 
-        // BORDER
-        ctx.strokeStyle = '#dee2e6';
-        ctx.lineWidth = 25;
-        ctx.strokeRect(50, 50, 800, 1200);
+        ctx.strokeStyle = '#ff2d55';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(20, 20, 560, 1360);
 
-        // 4 PHOTOS
+        ctx.fillStyle = '#ff2d55';
+        ctx.font = 'bold 28px "Plus Jakarta Sans", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('PHOTOBOOTH PRO', 300, 65);
+
+        ctx.fillStyle = '#6e6e7a';
+        ctx.font = '14px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(new Date().toLocaleString('id-ID'), 300, 90);
+
         this.shots.forEach((shotData, i) => {
             const img = new Image();
             img.onload = () => {
-                const x = (i % 2) * 410 + 80;
-                const y = Math.floor(i / 2) * 370 + 80;
-                ctx.shadowColor = 'rgba(0,0,0,0.15)';
-                ctx.shadowBlur = 20;
-                ctx.shadowOffsetY = 10;
-                ctx.drawImage(img, x, y, 330, 250);
+                const x = 36;
+                const y = 110 + i * 310;
+                const w = 528;
+                const h = 296;
+                ctx.save();
+                ctx.beginPath();
+                ctx.roundRect(x, y, w, h, 10);
+                ctx.clip();
+                ctx.drawImage(img, x, y, w, h);
+                ctx.restore();
+                ctx.strokeStyle = '#1c1c1f';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(x, y, w, h);
             };
             img.src = shotData;
         });
-
-        // TEXT
-        ctx.fillStyle = '#ff6b6b';
-        ctx.font = 'bold 60px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('DIGITAL PHOTOBOOTH', 450, 1230);
-
-        ctx.font = 'bold 40px Arial';
-        ctx.fillStyle = '#6c757d';
-        ctx.fillText(new Date().toLocaleString('id-ID'), 450, 1280);
     }
 
     download() {
@@ -268,22 +257,21 @@ class PhotoboothPro {
     }
 
     share() {
-        const canvas = document.getElementById('finalStrip');
-        const url = canvas.toDataURL('image/png');
-        const text = encodeURIComponent('📸 Foto photobooth keren! ' + new Date().toLocaleDateString('id-ID'));
+        const text = encodeURIComponent('📸 Foto dari Photobooth Pro! ' + new Date().toLocaleDateString('id-ID'));
         window.open(`https://wa.me/?text=${text}`);
         this.download();
     }
 
     newSession() {
         document.getElementById('resultSection').classList.add('hidden');
-        document.querySelector('.booth').style.display = 'block';
+        document.querySelector('.booth').style.display = 'flex';
         document.querySelector('.props').style.display = 'block';
-        document.getElementById('startBtn').style.display = 'block';
+        document.getElementById('startBtn').style.display = 'inline-flex';
+        document.getElementById('captureBtn').style.display = 'none';
         document.getElementById('shotCounter').textContent = '0/4';
+        document.getElementById('timer').textContent = '00:00';
         this.updateStatus('✅ READY! Pilih props → START', 'status-ok');
     }
 }
 
-// START APP
 const app = new PhotoboothPro();
